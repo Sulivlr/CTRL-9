@@ -1,14 +1,15 @@
 import {useAppDispatch, useAppSelector} from '../../app/hooks';
-import {hideCategoriesModal, selectCategoryIsCreating, showModalCloseModal} from './categoriesSlice';
+import {hideCategoriesModal, showModalCloseModal} from './categoriesSlice';
 import React, {useCallback, useState} from 'react';
 import {TYPES} from '../../constants';
 import {ApiCategory, Category} from '../../types';
 import ButtonSpinner from '../../components/Spinners/ButtonSpinner';
 import {createCategory, fetchCategories} from './categoriesThunks';
+import {selectTransactionIsCreating} from '../transactions/transactionSlice';
 
 const CategoryModal = () => {
   const dispatch = useAppDispatch();
-  const isCreating = useAppSelector(selectCategoryIsCreating);
+  const isCreating = useAppSelector(selectTransactionIsCreating);
   const isOpen = useAppSelector(showModalCloseModal);
   const closeModal = useCallback(() => {
     dispatch(hideCategoriesModal());

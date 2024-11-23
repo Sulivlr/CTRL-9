@@ -1,9 +1,15 @@
-import React from 'react';
+import React, {useCallback} from 'react';
 import {Link, NavLink} from 'react-router-dom';
+import {useAppDispatch} from '../../app/hooks';
+import {showTransactionModal} from '../../features/transactions/transactionSlice';
 
 
 const Appbar: React.FC = () => {
+  const dispatch = useAppDispatch();
 
+  const showModal = useCallback(() => {
+    dispatch(showTransactionModal());
+  }, [dispatch])
 
   return (
     <nav className="navbar navbar-expand-lg navbar-dark text-bg-warning">
@@ -18,7 +24,7 @@ const Appbar: React.FC = () => {
           <li className="nav-item">
             <NavLink to="/categories" className="nav-link">Categories</NavLink>
           </li>
-          <button className="btn btn-success">Add</button>
+          <button className="btn btn-success" onClick={showModal}>Add</button>
         </ul>
       </div>
     </nav>
