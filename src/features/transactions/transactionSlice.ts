@@ -1,12 +1,13 @@
 import {Transaction} from '../../types';
 import {createSlice} from '@reduxjs/toolkit';
-import {createTransaction, fetchTransactions} from './transactionThunk';
+import {createTransaction, deleteTransaction, fetchTransactions} from './transactionThunk';
 import {createCategory} from '../categories/categoriesThunks';
 
 export interface TransactionSlice {
   items: Transaction[]
   isCreating: boolean;
   isFetching: boolean;
+  isRemoving: string | null
   modalOpen: boolean;
 }
 
@@ -14,6 +15,7 @@ const initialState: TransactionSlice = {
   items: [],
   isCreating: false,
   isFetching: false,
+  isRemoving: null,
   modalOpen: false,
 };
 
@@ -44,13 +46,22 @@ const transactionSlice = createSlice({
       state.items = transaction;
     }).addCase(fetchTransactions.rejected, (state) => {
       state.isFetching = false;
-    })
+    });
+
+    builder.addCase(deleteTransaction.pending, (state,{meta: {arg: id}}) => {
+      state.isRemoving = id;
+    }).addCase(deleteTransaction.fulfilled, (state) => {
+      state.isRemoving = null;
+    }).addCase(deleteTransaction.rejected, (state) => {
+      state.isRemoving = null;
+    });
   },
   selectors: {
     selectShowTransactionModal: (state) => state.modalOpen,
     selectHideTransactionModal: (state) => state.modalOpen,
     selectTransactionIsCreating: (state) => state.isCreating,
     selectTransactionIsFetching: (state) => state.isFetching,
+    selectTransactionIsRemoving: (state) => state.isRemoving,
     selectTransactions: (state) => state.items,
   }
 });
@@ -66,4 +77,5 @@ export const {
   selectTransactionIsCreating,
   selectTransactionIsFetching,
   selectTransactions,
+  selectTransactionIsRemoving,
 } = transactionSlice.selectors;

@@ -46,3 +46,9 @@ export const fetchTransactions = createAsyncThunk<Transaction[]>(
     return transactions;
   }
 );
+
+export const deleteTransaction = createAsyncThunk<void, string>(
+  'transactions/delete',
+  async (id: string) => {
+    await axiosApi.delete(`/transactions/${id}.json`);
+  });

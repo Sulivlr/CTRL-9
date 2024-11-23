@@ -9,7 +9,7 @@ const Appbar: React.FC = () => {
 
   const showModal = useCallback(() => {
     dispatch(showTransactionModal());
-  }, [dispatch])
+  }, [dispatch]);
 
   return (
     <nav className="navbar navbar-expand-lg navbar-dark text-bg-warning">

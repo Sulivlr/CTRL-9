@@ -1,15 +1,28 @@
 import {useAppDispatch, useAppSelector} from '../../app/hooks';
-import { selectTransactions} from './transactionSlice';
+import {selectTransactionIsRemoving, selectTransactions} from './transactionSlice';
 import {useEffect} from 'react';
-import {fetchTransactions} from './transactionThunk';
+import {deleteTransaction, fetchTransactions} from './transactionThunk';
+import {toast} from 'react-toastify';
+import ButtonSpinner from '../../components/Spinners/ButtonSpinner';
 
 const TransactionsList = () => {
   const dispatch = useAppDispatch();
   const transactions = useAppSelector(selectTransactions);
+  const isDeleting = useAppSelector(selectTransactionIsRemoving);
 
   useEffect(() => {
     dispatch(fetchTransactions());
   }, [dispatch]);
+
+  const onRemove =  async (id: string) => {
+    try {
+      await dispatch(deleteTransaction(id)).unwrap();
+      await dispatch(fetchTransactions());
+      toast.success('Transaction removed');
+    } catch {
+      toast.error('Something went wrong');
+    }
+  };
 
   return (
     <div>
@@ -24,6 +37,16 @@ const TransactionsList = () => {
             <span style={{color: transaction.category.type === 'income' ? 'green' : 'red'}}>
               {transaction.category.type === 'income' ? '+' : '-'}
               {transaction.amount} KGS</span>
+            <div>
+            <button
+              className="btn btn-danger"
+              onClick={() => {onRemove(transaction.id)}}
+              disabled={isDeleting === transaction.id}
+            >
+              {isDeleting === transaction.id && <ButtonSpinner/>}
+              Delete
+            </button>
+            </div>
           </div>
         </div>
       ))}
