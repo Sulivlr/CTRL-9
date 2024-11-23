@@ -40,7 +40,7 @@ const TransactionsList = () => {
             <div>
             <button
               className="btn btn-danger"
-              onClick={() => {onRemove(transaction.id)}}
+              onClick={() => onRemove(transaction.id)}
               disabled={isDeleting === transaction.id}
             >
               {isDeleting === transaction.id && <ButtonSpinner/>}

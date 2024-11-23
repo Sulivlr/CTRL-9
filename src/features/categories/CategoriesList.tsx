@@ -1,14 +1,22 @@
 import CategoryModal from './CategoryModal';
 import {useAppDispatch, useAppSelector} from '../../app/hooks';
-import {selectCategories, selectCategoryIsFetching, showCategoriesModal} from './categoriesSlice';
+import {
+  selectCategories,
+  selectCategoryIsFetching,
+  selectCategoryIsRemoving,
+  showCategoriesModal
+} from './categoriesSlice';
 import {useCallback, useEffect} from 'react';
-import {fetchCategories} from './categoriesThunks';
+import {deleteCategory, fetchCategories} from './categoriesThunks';
 import Spinner from '../../components/Spinners/Spinner';
+import {toast} from 'react-toastify';
+import ButtonSpinner from '../../components/Spinners/ButtonSpinner';
 
 const CategoriesList = () => {
   const dispatch = useAppDispatch();
   const categories = useAppSelector(selectCategories);
   const isLoading = useAppSelector(selectCategoryIsFetching);
+  const isDeleting = useAppSelector(selectCategoryIsRemoving);
   const openModal = useCallback(() => {
     dispatch(showCategoriesModal());
   }, [dispatch]);
@@ -16,6 +24,16 @@ const CategoriesList = () => {
   useEffect(() => {
     dispatch(fetchCategories());
   }, [dispatch]);
+
+  const onRemove =  async (id: string) => {
+    try {
+      await dispatch(deleteCategory(id)).unwrap();
+      await dispatch(fetchCategories());
+      toast.success('Category removed');
+    } catch {
+      toast.error('Something went wrong');
+    }
+  };
 
   return (
     <div>
@@ -33,6 +51,16 @@ const CategoriesList = () => {
                    className="card-body d-flex justify-content-between">
                 <span>{category.name}</span>
                 <span style={{color: category.type === 'income' ? 'green' : 'red'}}>{category.type}</span>
+                <div>
+                  <button
+                    onClick={() => onRemove(category.id)}
+                    disabled={isDeleting === category.id}
+                    className="btn btn-danger"
+                  >
+                    {isDeleting === category.id && <ButtonSpinner/>}
+                    Delete
+                  </button>
+                </div>
               </div>
             </div>
           ))}

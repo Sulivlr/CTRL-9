@@ -1,11 +1,12 @@
 import {createSlice} from '@reduxjs/toolkit';
-import {createCategory, fetchCategories} from './categoriesThunks';
+import {createCategory, deleteCategory, fetchCategories} from './categoriesThunks';
 import {Category} from '../../types';
 
 export interface CategoriesState {
   items: Category[]
   isCreating: boolean;
   isFetching: boolean;
+  isRemoving: string | null;
   modalOpen: boolean;
 }
 
@@ -13,6 +14,7 @@ const initialState: CategoriesState = {
   items: [],
   isCreating: false,
   isFetching: false,
+  isRemoving: null,
   modalOpen: false,
 };
 
@@ -43,13 +45,22 @@ const categoriesSlice = createSlice({
       state.items = category;
     }).addCase(fetchCategories.rejected, (state) => {
       state.isFetching = false;
-    })
+    });
+
+    builder.addCase(deleteCategory.pending, (state, {meta: {arg: id}}) => {
+      state.isRemoving = id;
+    }).addCase(deleteCategory.fulfilled, (state) => {
+      state.isRemoving = null;
+    }).addCase(deleteCategory.rejected, (state) => {
+      state.isRemoving = null;
+    });
   },
   selectors: {
     showModalCloseModal: (state) => state.modalOpen,
     hideModalModal: (state) => state.modalOpen,
     selectCategoryIsCreating: (state) => state.isCreating,
     selectCategoryIsFetching: (state) => state.isFetching,
+    selectCategoryIsRemoving: (state) => state.isRemoving,
     selectCategories: (state) => state.items,
   }
 });
@@ -65,4 +76,5 @@ export const {
   selectCategoryIsCreating,
   selectCategoryIsFetching,
   selectCategories,
+  selectCategoryIsRemoving,
 } = categoriesSlice.selectors;
