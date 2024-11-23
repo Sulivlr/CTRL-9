@@ -2,9 +2,9 @@ import {useAppDispatch, useAppSelector} from '../../app/hooks';
 import {hideCategoriesModal, selectCategoryIsCreating, showModalCloseModal} from './categoriesSlice';
 import React, {useCallback, useState} from 'react';
 import {TYPES} from '../../constants';
-import {Category} from '../../types';
+import {ApiCategory, Category} from '../../types';
 import ButtonSpinner from '../../components/Spinners/ButtonSpinner';
-import {createCategory} from './categoriesThunks';
+import {createCategory, fetchCategories} from './categoriesThunks';
 
 const CategoryModal = () => {
   const dispatch = useAppDispatch();
@@ -14,7 +14,7 @@ const CategoryModal = () => {
     dispatch(hideCategoriesModal());
   }, [dispatch]);
 
-  const [category, setCategory] = useState<Category>({
+  const [category, setCategory] = useState<ApiCategory>({
     type: '',
     name: '',
   });
@@ -26,8 +26,8 @@ const CategoryModal = () => {
 
   const onSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    console.log(category)
-    await dispatch(createCategory(category)).unwrap();
+    await dispatch(createCategory(category as Category)).unwrap();
+    dispatch(fetchCategories());
     closeModal();
   };
 

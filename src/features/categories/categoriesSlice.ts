@@ -1,14 +1,19 @@
 import {createSlice} from '@reduxjs/toolkit';
-import {createCategory} from './categoriesThunks';
+import {createCategory, fetchCategories} from './categoriesThunks';
+import {Category} from '../../types';
 
 export interface CategoriesState {
-  modalOpen: boolean;
+  items: Category[]
   isCreating: boolean;
+  isFetching: boolean;
+  modalOpen: boolean;
 }
 
 const initialState: CategoriesState = {
-  modalOpen: false,
+  items: [],
   isCreating: false,
+  isFetching: false,
+  modalOpen: false,
 };
 
 const categoriesSlice = createSlice({
@@ -30,11 +35,22 @@ const categoriesSlice = createSlice({
     }).addCase(createCategory.rejected, (state) => {
       state.isCreating = false;
     });
+
+    builder.addCase(fetchCategories.pending, (state) => {
+      state.isFetching = true;
+    }).addCase(fetchCategories.fulfilled, (state, {payload: category}) => {
+      state.isFetching = false;
+      state.items = category;
+    }).addCase(fetchCategories.rejected, (state) => {
+      state.isFetching = false;
+    })
   },
   selectors: {
     showModalCloseModal: (state) => state.modalOpen,
     hideModalModal: (state) => state.modalOpen,
     selectCategoryIsCreating: (state) => state.isCreating,
+    selectCategoryIsFetching: (state) => state.isFetching,
+    selectCategories: (state) => state.items,
   }
 });
 
@@ -47,4 +63,6 @@ export const {
   showModalCloseModal,
   hideModalModal,
   selectCategoryIsCreating,
+  selectCategoryIsFetching,
+  selectCategories,
 } = categoriesSlice.selectors;
