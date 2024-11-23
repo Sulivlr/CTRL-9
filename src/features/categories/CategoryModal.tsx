@@ -1,11 +1,14 @@
 import {useAppDispatch, useAppSelector} from '../../app/hooks';
-import {hideCategoriesModal, showModalCloseModal} from './categoriesSlice';
+import {hideCategoriesModal, selectCategoryIsCreating, showModalCloseModal} from './categoriesSlice';
 import React, {useCallback, useState} from 'react';
 import {TYPES} from '../../constants';
 import {Category} from '../../types';
+import ButtonSpinner from '../../components/Spinners/ButtonSpinner';
+import {createCategory} from './categoriesThunks';
 
 const CategoryModal = () => {
   const dispatch = useAppDispatch();
+  const isCreating = useAppSelector(selectCategoryIsCreating);
   const isOpen = useAppSelector(showModalCloseModal);
   const closeModal = useCallback(() => {
     dispatch(hideCategoriesModal());
@@ -21,10 +24,12 @@ const CategoryModal = () => {
     setCategory((prevState) => ({...prevState, [name]: value}));
   };
 
-  const onSubmit = (event: React.FormEvent) => {
+  const onSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     console.log(category)
-  }
+    await dispatch(createCategory(category)).unwrap();
+    closeModal();
+  };
 
   return (
     <>
@@ -39,7 +44,6 @@ const CategoryModal = () => {
             <div className="modal-body">
               <div className="mb-3">
                 <label htmlFor="type" className="form-label">Type</label>
-                <option value="">Select a type</option>
                 <select
                   name="type"
                   required
@@ -48,6 +52,7 @@ const CategoryModal = () => {
                   value={category.type}
                   onChange={onChange}
                 >
+                  <option value="">Select a type</option>
                   {TYPES.map((type) => (
                     <option key={type.id} value={type.id}>{type.label}</option>
                   ))}
@@ -68,7 +73,13 @@ const CategoryModal = () => {
             </div>
             <div className="modal-footer">
               <button type="button" className="btn btn-secondary" onClick={closeModal}>Close</button>
-              <button type="submit" className="btn btn-primary">Save</button>
+              <button
+                type="submit"
+                disabled={isCreating}
+                className="btn btn-primary">
+                {isCreating && <ButtonSpinner/>}
+                Save
+              </button>
             </div>
           </form>
         </div>

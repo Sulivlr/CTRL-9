@@ -1,11 +1,14 @@
 import {createSlice} from '@reduxjs/toolkit';
+import {createCategory} from './categoriesThunks';
 
 export interface CategoriesState {
   modalOpen: boolean;
+  isCreating: boolean;
 }
 
 const initialState: CategoriesState = {
   modalOpen: false,
+  isCreating: false,
 };
 
 const categoriesSlice = createSlice({
@@ -19,10 +22,19 @@ const categoriesSlice = createSlice({
       state.modalOpen = false;
     },
   },
-  extraReducers: () => {},
+  extraReducers: (builder) => {
+    builder.addCase(createCategory.pending, (state) => {
+      state.isCreating = true;
+    }).addCase(createCategory.fulfilled, (state) => {
+      state.isCreating = false;
+    }).addCase(createCategory.rejected, (state) => {
+      state.isCreating = false;
+    });
+  },
   selectors: {
     showModalCloseModal: (state) => state.modalOpen,
     hideModalModal: (state) => state.modalOpen,
+    selectCategoryIsCreating: (state) => state.isCreating,
   }
 });
 
@@ -34,4 +46,5 @@ export const {
 export const {
   showModalCloseModal,
   hideModalModal,
+  selectCategoryIsCreating,
 } = categoriesSlice.selectors;
