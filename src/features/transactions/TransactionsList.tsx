@@ -4,6 +4,7 @@ import {useEffect} from 'react';
 import {deleteTransaction, fetchTransactions} from './transactionThunk';
 import {toast} from 'react-toastify';
 import ButtonSpinner from '../../components/Spinners/ButtonSpinner';
+import dayjs from 'dayjs';
 
 const TransactionsList = () => {
   const dispatch = useAppDispatch();
@@ -14,7 +15,12 @@ const TransactionsList = () => {
     dispatch(fetchTransactions());
   }, [dispatch]);
 
-  const onRemove =  async (id: string) => {
+  const total = transactions.reduce((sum, transaction) => {
+    return sum + transaction.amount * (transaction.category.type === 'income' ? 1 : -1);
+  }, 0);
+
+
+  const onRemove = async (id: string) => {
     try {
       await dispatch(deleteTransaction(id)).unwrap();
       await dispatch(fetchTransactions());
@@ -27,29 +33,40 @@ const TransactionsList = () => {
   return (
     <div>
       <h2>Transactions</h2>
+      <h3
+        style={{
+          color: total >= 0 ? 'green' : 'red',
+        }}
+        className="p-2"
+      >
+        Total: {total} KGS
+      </h3>
       {transactions.map((transaction) => (
-        <div className="card mb-2">
-          <div className="card-body d-flex justify-content-between">
+        <div>
+          <div className="card mb-2">
+            <div className="card-body d-flex justify-content-between">
             <span>
-              {transaction.createdAt + ' '}
-              {transaction.category.name}
+              {dayjs(transaction.createdAt).format('DD.MM.YYYY HH:mm:ss')}
             </span>
-            <span style={{color: transaction.category.type === 'income' ? 'green' : 'red'}}>
+              <strong>{transaction.category.name}</strong>
+              <span style={{color: transaction.category.type === 'income' ? 'green' : 'red'}}>
               {transaction.category.type === 'income' ? '+' : '-'}
-              {transaction.amount} KGS</span>
-            <div>
-            <button
-              className="btn btn-danger"
-              onClick={() => onRemove(transaction.id)}
-              disabled={isDeleting === transaction.id}
-            >
-              {isDeleting === transaction.id && <ButtonSpinner/>}
-              Delete
-            </button>
+                {transaction.amount} KGS</span>
+              <div>
+                <button
+                  className="btn btn-danger"
+                  onClick={() => onRemove(transaction.id)}
+                  disabled={isDeleting === transaction.id}
+                >
+                  {isDeleting === transaction.id && <ButtonSpinner/>}
+                  Delete
+                </button>
+              </div>
             </div>
           </div>
         </div>
       ))}
+
     </div>
   );
 };

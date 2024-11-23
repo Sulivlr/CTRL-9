@@ -49,7 +49,7 @@ const CategoriesList = () => {
             <div className="card mb-2">
               <div key={category.id}
                    className="card-body d-flex justify-content-between">
-                <span>{category.name}</span>
+                <strong>{category.name}</strong>
                 <span style={{color: category.type === 'income' ? 'green' : 'red'}}>{category.type}</span>
                 <div>
                   <button
